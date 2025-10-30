@@ -1,9 +1,13 @@
 package RenderEngine;
 
+import CoreEngine.Camera;
+import CoreEngine.DataLoader;
+import RenderEngine.Models.Entity;
 import RenderEngine.Models.ModelTexture;
 import RenderEngine.Models.RawModel;
 import RenderEngine.Models.TexturedModel;
-import Shaders.Shader;
+import Shaders.StaticShader;
+import org.joml.Vector3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -27,6 +31,14 @@ public class DisplayManager {
     private static final int WIDTH = 1280;
     private static final int HEIGHT = 720;
     private static final String TITLE = "3D GAME ENGINE";
+
+    public static int getWidth() {
+        return WIDTH;
+    }
+
+    public static int getHeight() {
+        return HEIGHT;
+    }
 
     public static void createDisplay() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -94,17 +106,34 @@ public class DisplayManager {
                 3,1,2
         };
 
-        Shader staticShader = new Shader("simple");
+        StaticShader staticShader = new StaticShader();
         RawModel rawModel = DataLoader.loadRawModel(vertices, texCoords, indices);
         ModelTexture texture = new ModelTexture(DataLoader.loadTexture("highqualitybrick.jpg"));
         TexturedModel model = new TexturedModel(rawModel, texture);
+        Renderer renderer = new Renderer(staticShader);
 
+        Entity entity = new Entity(model, new Vector3f(0.0f, 0.0f, -5.0f), new Vector3f(0.0f, 0.0f, 0.0f),
+                new Vector3f(1.0f, 1.0f, 1.0f));
+
+        Vector3f cameraPos = new Vector3f(0.0f);
+        float pitch = -90.0f;
+        float yaw = 0.0f;
+        Camera camera = new Camera(cameraPos, pitch, yaw);
+
+        float lastFrame = 0.0f;
         while ( !glfwWindowShouldClose(window) ) {
-            Renderer.clearScreen(0.0f, 0.0f, 0.0f, 0.0f);
-            Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            renderer.clearScreen(0.0f, 0.0f, 0.0f, 0.0f);
+            renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            float currentFrame = (float) glfwGetTime();
+            float deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
+            camera.move(window, deltaTime);
 
             staticShader.use();
-            Renderer.render(model);
+            staticShader.loadViewMatrix(camera.createViewMatrix());
+            renderer.render(entity, staticShader);
             staticShader.stop();
 
             swapBuffers(window);

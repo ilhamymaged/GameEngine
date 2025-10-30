@@ -1,4 +1,4 @@
-package RenderEngine;
+package CoreEngine;
 
 import RenderEngine.Models.RawModel;
 import org.lwjgl.BufferUtils;

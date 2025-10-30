@@ -1,12 +1,15 @@
 package Shaders;
 
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.lwjgl.opengl.GL20.*;
 
-public class Shader {
+public abstract class Shader {
 
     private final int programId;
     private final int vertexShaderId;
@@ -21,7 +24,45 @@ public class Shader {
         glAttachShader(programId, fragmentShaderId);
         glLinkProgram(programId);
         glValidateProgram(programId);
+
+        getAllUniformLocations();
     }
+
+    protected abstract void getAllUniformLocations();
+
+    protected int getUniformLocation(String locName) {
+        int loc = glGetUniformLocation(programId, locName);
+        if(loc == -1)  {
+            System.out.println("DIDN'T FIND: " + locName);
+            System.exit(-1);
+        }
+        return loc;
+    }
+
+    protected void loadMatrix4f(int loc, Matrix4f matrix) {
+        glUniformMatrix4fv(loc, false, matrix.get(new float[16]));
+    }
+
+    protected void locVec3(int loc, Vector3f vec) {
+        glUniform3f(loc, vec.x, vec.y, vec.z);
+    }
+
+    protected void loadBoolean(int loc, boolean value) {
+        if(value)
+            glUniform1i(loc, 1);
+        else
+            glUniform1f(loc, 0);
+    }
+
+
+    protected void loadInt(int loc, int value) {
+        glUniform1i(loc, value);
+    }
+
+    protected void loadFloat(int loc, float value) {
+        glUniform1f(loc, value);
+    }
+
 
     public void use() {
         glUseProgram(programId);
