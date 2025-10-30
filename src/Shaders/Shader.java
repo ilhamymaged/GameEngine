@@ -34,7 +34,7 @@ public abstract class Shader {
         int loc = glGetUniformLocation(programId, locName);
         if(loc == -1)  {
             System.out.println("DIDN'T FIND: " + locName);
-            System.exit(-1);
+            //System.exit(-1);
         }
         return loc;
     }

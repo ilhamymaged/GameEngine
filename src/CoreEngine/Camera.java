@@ -54,6 +54,7 @@ public class Camera {
             lastX = (float) xpos;
             lastY = (float) ypos;
             firstMouse = false;
+            return;
         }
 
         float xoffset = (float) (xpos - lastX);
@@ -118,7 +119,7 @@ public class Camera {
     }
 
     public void setPosition(Vector3f position) {
-        this.position = position;
+        Camera.position = position;
     }
 
     public static float getPitch() {

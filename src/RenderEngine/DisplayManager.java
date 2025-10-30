@@ -88,6 +88,7 @@ public class DisplayManager {
         Renderer.EnableDepthTest(true);
         STBImage.stbi_set_flip_vertically_on_load(true);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetCursorPos(window, WIDTH / 2.0, HEIGHT / 2.0);
         glfwSetCursorPosCallback(window, Camera::mouse_callback);
 
         StaticShader staticShader = new StaticShader();
@@ -116,11 +117,13 @@ public class DisplayManager {
             float deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
+//            entityRotation.add(new Vector3f((float) Math.sin((float) glfwGetTime())).mul(deltaTime));
+
             camera.move(window, deltaTime);
 
             staticShader.use();
             staticShader.loadViewMatrix(camera.createViewMatrix());
-            staticShader.loadLight(light);
+            staticShader.loadLight(light, camera);
             for (Model.MeshAsset mesh : backpack.meshes()) {
                 Entity entity = new Entity(
                         new TexturedModel(mesh.rawModel(), mesh.texture()),

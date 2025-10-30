@@ -1,5 +1,6 @@
 package Shaders;
 
+import CoreEngine.Camera;
 import RenderEngine.Lighting.Light;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -11,6 +12,7 @@ public class StaticShader extends Shader{
     private int projectionMatrixLoc;
     private int lightPosLoc;
     private int lightColorLoc;
+    private int cameraPosLoc;
 
 
     public StaticShader() {
@@ -24,11 +26,13 @@ public class StaticShader extends Shader{
         projectionMatrixLoc = super.getUniformLocation("projectionMatrix");
         lightPosLoc = super.getUniformLocation("lightPos");
         lightColorLoc = super.getUniformLocation("lightColor");
+        cameraPosLoc = super.getUniformLocation("cameraPos");
     }
 
-    public void loadLight(Light light) {
+    public void loadLight(Light light, Camera camera) {
         super.loadVector3f(lightPosLoc, light.getPos());
         super.loadVector3f(lightColorLoc, light.getColor());
+        super.loadVector3f(cameraPosLoc, camera.getPosition());
     }
 
     public void loadTransformationMatrix(Matrix4f transformationMatrix) {
