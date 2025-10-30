@@ -72,6 +72,8 @@ public class DisplayManager {
 
     public static void updateDisplay() {
         GL.createCapabilities();
+        glViewport(0, 0, WIDTH, HEIGHT);
+        glfwSetFramebufferSizeCallback(window, (w, width, height) -> glViewport(0, 0, width, height));
 
         float[] vertices = {
             -0.5f, 0.5f, 0.0f,

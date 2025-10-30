@@ -2,6 +2,7 @@ package RenderEngine;
 
 import RenderEngine.Models.RawModel;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 
 import java.nio.ByteBuffer;
@@ -47,7 +48,8 @@ public class DataLoader {
         ByteBuffer image = STBImage.stbi_load( "src/Assets/Textures/"+ name, width, height, channels, 0);
 
         if(image != null) {
-            glTexImage2D(GL_TEXTURE, 0, GL_RGBA, width.get(0), height.get(0), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+            int format = channels.get(0) == 3 ? GL_RGB : GL_RGBA;
+            glTexImage2D(GL11.GL_TEXTURE_2D, 0, format, width.get(0), height.get(0), 0, format, GL_UNSIGNED_BYTE, image);
             System.out.print("IMAGE LOADED SUCCESSFULLY: " + name);
         }
         else {
