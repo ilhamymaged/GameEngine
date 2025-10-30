@@ -9,6 +9,7 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.FileNotFoundException;
@@ -20,6 +21,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -75,27 +77,26 @@ public class DisplayManager {
         }
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
         glfwShowWindow(window);
 
     }
 
-    public static void updateDisplay() throws FileNotFoundException {
+    public static void updateDisplay() {
         GL.createCapabilities();
         glViewport(0, 0, WIDTH, HEIGHT);
         glfwSetFramebufferSizeCallback(window, (w, width, height) -> glViewport(0, 0, width, height));
         Renderer.EnableDepthTest(true);
+        STBImage.stbi_set_flip_vertically_on_load(true);
 
         StaticShader staticShader = new StaticShader();
-        RawModel rawModel = Model.loadModel("backPack/backPack.obj");
-        ModelTexture texture = new ModelTexture(DataLoader.loadTexture("highqualitybrick.jpg"));
-        TexturedModel model = new TexturedModel(rawModel, texture);
+        Model.ModelAsset backpack = Model.loadModel("backPack/backpack.obj");
+        ModelTexture.activeTextureUnit(GL_TEXTURE0); // set once up front
         Renderer renderer = new Renderer(staticShader);
 
         Vector3f entityPos = new Vector3f(0.0f, 0.0f, -5.0f);
         Vector3f entityRotation = new Vector3f(0.0f, 0.0f, 0.0f);
         Vector3f entityScale = new Vector3f(1.0f, 1.0f, 1.0f);
-        Entity entity = new Entity(model, entityPos, entityRotation, entityScale);
 
         Vector3f cameraPos = new Vector3f(0.0f);
         float pitch = -90.0f;
@@ -115,7 +116,15 @@ public class DisplayManager {
 
             staticShader.use();
             staticShader.loadViewMatrix(camera.createViewMatrix());
-            renderer.render(entity, staticShader);
+            for (Model.MeshAsset mesh : backpack.meshes()) {
+                Entity entity = new Entity(
+                        new TexturedModel(mesh.rawModel(), mesh.texture()),
+                        entityPos,
+                        entityRotation,
+                        entityScale
+                );
+                renderer.render(entity, staticShader);
+            }
             staticShader.stop();
 
             swapBuffers(window);

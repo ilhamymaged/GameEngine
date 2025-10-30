@@ -17,6 +17,7 @@ import static org.lwjgl.opengl.GL11C.GL_FLOAT;
 import static org.lwjgl.opengl.GL15C.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 
 public class DataLoader {
     private static final List<Integer> VERTEX_ARRAY_LIST = new ArrayList<>();
@@ -46,7 +47,7 @@ public class DataLoader {
         IntBuffer width = BufferUtils.createIntBuffer(1);
         IntBuffer height = BufferUtils.createIntBuffer(1);
         IntBuffer channels = BufferUtils.createIntBuffer(1);
-        ByteBuffer image = STBImage.stbi_load( "src/Assets/Textures/"+ name, width, height, channels, 0);
+        ByteBuffer image = STBImage.stbi_load( "src/Assets/Textures/"+ name, width, height, channels, 4);
 
         if(image != null) {
             int format = channels.get(0) == 3 ? GL_RGB : GL_RGBA;
@@ -58,6 +59,54 @@ public class DataLoader {
         }
 
         STBImage.stbi_image_free(image);
+        textures.add(id);
+        return id;
+    }
+
+    public static int loadTextureFromAbsolutePath(String absolutePath) {
+        STBImage.stbi_set_flip_vertically_on_load(true);
+
+        IntBuffer width = BufferUtils.createIntBuffer(1);
+        IntBuffer height = BufferUtils.createIntBuffer(1);
+        IntBuffer channels = BufferUtils.createIntBuffer(1);
+
+        ByteBuffer image = STBImage.stbi_load(absolutePath, width, height, channels, 4); // force RGBA
+        if (image == null) {
+            throw new IllegalStateException("Could not load texture: " + absolutePath);
+        }
+
+        int id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width.get(0), height.get(0),
+                0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        STBImage.stbi_image_free(image);
+        textures.add(id);
+        return id;
+    }
+
+    public static int create1x1Texture(int argb) {
+        int id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        ByteBuffer pixel = BufferUtils.createByteBuffer(4);
+        pixel.put((byte) ((argb >> 16) & 0xFF)); // R
+        pixel.put((byte) ((argb >> 8) & 0xFF));  // G
+        pixel.put((byte) (argb & 0xFF));         // B
+        pixel.put((byte) ((argb >> 24) & 0xFF)); // A
+        pixel.flip();
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
         textures.add(id);
         return id;
     }
