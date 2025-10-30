@@ -87,7 +87,7 @@ public class DisplayManager {
         Renderer.EnableDepthTest(true);
 
         StaticShader staticShader = new StaticShader();
-        RawModel rawModel = ObjModel.loadObjModel("backpack");
+        RawModel rawModel = Model.loadModel("backPack/backPack.obj");
         ModelTexture texture = new ModelTexture(DataLoader.loadTexture("highqualitybrick.jpg"));
         TexturedModel model = new TexturedModel(rawModel, texture);
         Renderer renderer = new Renderer(staticShader);
