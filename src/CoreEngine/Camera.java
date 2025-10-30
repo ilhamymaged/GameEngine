@@ -17,14 +17,24 @@ public class Camera {
 
     public void move(long window, float deltaTime) {
         float velocity = SPEED * deltaTime;
+        Vector3f front = new Vector3f(FRONT_DIRECTION);
+        Vector3f right = new Vector3f(FRONT_DIRECTION).cross(UP_DIRECTION);
+
         if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            position.add(FRONT_DIRECTION.mul(velocity));
+            position.add(new Vector3f(front).mul(velocity));
         if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            position.sub(FRONT_DIRECTION.mul(velocity));
+            position.sub(new Vector3f(front).mul(velocity));
+
+        if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            position.add(new Vector3f(right).mul(velocity));
+
+        if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            position.sub(new Vector3f(right).mul(velocity));
     }
 
     public Matrix4f createViewMatrix() {
-        return new Matrix4f().lookAt(position, position.add(FRONT_DIRECTION), UP_DIRECTION);
+        Vector3f center = new Vector3f(position).add(FRONT_DIRECTION);
+        return new Matrix4f().lookAt(position, center, UP_DIRECTION);
     }
 
     public Camera(Vector3f position, float pitch, float yaw) {

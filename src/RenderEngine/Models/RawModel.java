@@ -43,7 +43,7 @@ public class RawModel {
     public static Matrix4f createProjectionMatrix(float FOV, float near_plane, float far_plane) {
         Matrix4f matrix = new Matrix4f();
         matrix.identity();
-        matrix.perspective((float)Math.toRadians(FOV), (float)DisplayManager.getWidth() / DisplayManager.getHeight(), near_plane, far_plane);
+        matrix.perspective(FOV, (float)DisplayManager.getWidth() / DisplayManager.getHeight(), near_plane, far_plane);
         return matrix;
     }
 }

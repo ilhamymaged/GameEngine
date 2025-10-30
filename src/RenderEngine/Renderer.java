@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 
 public class Renderer {
 
-    private static final float FOV = 45.0f;
+    private static final float FOV = (float)Math.toRadians(45.0f);
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 100.0f;
 
@@ -36,6 +36,11 @@ public class Renderer {
 
         glDrawElements(GL_TRIANGLES, model.getRawModel().getIndicesCount(), GL_UNSIGNED_INT, 0);
         DataLoader.unBindVAO();
+    }
+
+    public static void EnableDepthTest(boolean enable) {
+        if(enable) glEnable(GL_DEPTH_TEST);
+        else glDisable(GL_DEPTH_TEST);
     }
 
     public void clearScreen(float r, float g, float b, float a) {
