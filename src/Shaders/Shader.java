@@ -39,6 +39,10 @@ public abstract class Shader {
         return loc;
     }
 
+    protected void loadVector3f(int loc, Vector3f vec) {
+        glUniform3f(loc, vec.x, vec.y, vec.z);
+    }
+
     protected void loadMatrix4f(int loc, Matrix4f matrix) {
         glUniformMatrix4fv(loc, false, matrix.get(new float[16]));
     }

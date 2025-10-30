@@ -74,29 +74,27 @@ public final class Model {
         int[]   indices   = new int[faceCount * 3];
 
         AIVector3D.Buffer posBuf = Objects.requireNonNull(mesh.mVertices(), "Mesh has no positions");
-        AIVector3D.Buffer normBuf = mesh.mNormals();
-        AIVector3D.Buffer texBuf  = mesh.mTextureCoords(0); // 0 -> first UV set
+        AIVector3D.Buffer normBuf = Objects.requireNonNull(mesh.mNormals(), "Mesh has no normals");
+        AIVector3D.Buffer texBuf  = Objects.requireNonNull(mesh.mTextureCoords(0), "Mesh has no texCoords"); // 0 -> first UV set
 
+        //Getting positions, normals, texCoordinates
         for (int i = 0; i < vertexCount; i++) {
             AIVector3D pos = posBuf.get(i);
             positions[i * 3]     = pos.x();
             positions[i * 3 + 1] = pos.y();
             positions[i * 3 + 2] = pos.z();
 
-            if (normBuf != null) {
-                AIVector3D n = normBuf.get(i);
-                normals[i * 3]     = n.x();
-                normals[i * 3 + 1] = n.y();
-                normals[i * 3 + 2] = n.z();
-            }
+            AIVector3D n = normBuf.get(i);
+            normals[i * 3]     = n.x();
+            normals[i * 3 + 1] = n.y();
+            normals[i * 3 + 2] = n.z();
 
-            if (texBuf != null) {
-                AIVector3D t = texBuf.get(i);
-                texCoords[i * 2]     = t.x();
-                texCoords[i * 2 + 1] = t.y();
-            }
+            AIVector3D t = texBuf.get(i);
+            texCoords[i * 2]     = t.x();
+            texCoords[i * 2 + 1] = t.y();
         }
 
+        //Getting indices
         AIFace.Buffer faceBuf = Objects.requireNonNull(mesh.mFaces(), "Mesh has no faces");
         for (int i = 0; i < faceCount; i++) {
             AIFace face = faceBuf.get(i);

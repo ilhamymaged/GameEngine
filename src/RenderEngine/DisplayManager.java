@@ -2,6 +2,7 @@ package RenderEngine;
 
 import CoreEngine.Camera;
 import CoreEngine.DataLoader;
+import RenderEngine.Lighting.Light;
 import RenderEngine.Models.*;
 import Shaders.StaticShader;
 import org.joml.Vector3f;
@@ -12,7 +13,6 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
-import java.io.FileNotFoundException;
 import java.nio.IntBuffer;
 import java.util.Objects;
 
@@ -21,7 +21,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -88,10 +87,11 @@ public class DisplayManager {
         glfwSetFramebufferSizeCallback(window, (w, width, height) -> glViewport(0, 0, width, height));
         Renderer.EnableDepthTest(true);
         STBImage.stbi_set_flip_vertically_on_load(true);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetCursorPosCallback(window, Camera::mouse_callback);
 
         StaticShader staticShader = new StaticShader();
-        Model.ModelAsset backpack = Model.loadModel("backPack/backpack.obj");
-        ModelTexture.activeTextureUnit(GL_TEXTURE0); // set once up front
+        Model.ModelAsset backpack = Model.loadModel("backPack/backPack.obj");
         Renderer renderer = new Renderer(staticShader);
 
         Vector3f entityPos = new Vector3f(0.0f, 0.0f, -5.0f);
@@ -101,7 +101,11 @@ public class DisplayManager {
         Vector3f cameraPos = new Vector3f(0.0f);
         float pitch = -90.0f;
         float yaw = 0.0f;
-        Camera camera = new Camera(cameraPos, pitch, yaw);
+        Camera camera = new Camera(cameraPos, new Vector3f(0.0f, 0.0f, -1.0f), new Vector3f(0.0f, 1.0f, 0.0f), pitch, yaw);
+
+        Vector3f lightPos = new Vector3f(1.0f, 0.0f, -5.0f);
+        Vector3f lightColor = new Vector3f(1.0f);
+        Light light = new Light(lightPos, lightColor);
 
         float lastFrame = 0.0f;
         while ( !glfwWindowShouldClose(window) ) {
@@ -116,6 +120,7 @@ public class DisplayManager {
 
             staticShader.use();
             staticShader.loadViewMatrix(camera.createViewMatrix());
+            staticShader.loadLight(light);
             for (Model.MeshAsset mesh : backpack.meshes()) {
                 Entity entity = new Entity(
                         new TexturedModel(mesh.rawModel(), mesh.texture()),
