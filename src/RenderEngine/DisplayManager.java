@@ -141,7 +141,6 @@ public class DisplayManager {
         }
 
         staticShader.cleanUp();
-
     }
 
     public static void closeDisplay() {

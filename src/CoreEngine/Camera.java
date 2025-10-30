@@ -20,7 +20,7 @@ public class Camera {
         if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
             position.add(FRONT_DIRECTION.mul(velocity));
         if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            position.add(FRONT_DIRECTION.mul(velocity));
+            position.sub(FRONT_DIRECTION.mul(velocity));
     }
 
     public Matrix4f createViewMatrix() {
