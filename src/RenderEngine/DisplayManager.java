@@ -2,10 +2,7 @@ package RenderEngine;
 
 import CoreEngine.Camera;
 import CoreEngine.DataLoader;
-import RenderEngine.Models.Entity;
-import RenderEngine.Models.ModelTexture;
-import RenderEngine.Models.RawModel;
-import RenderEngine.Models.TexturedModel;
+import RenderEngine.Models.*;
 import Shaders.StaticShader;
 import org.joml.Vector3f;
 import org.lwjgl.Version;
@@ -14,6 +11,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.FileNotFoundException;
 import java.nio.IntBuffer;
 import java.util.Objects;
 
@@ -82,116 +80,14 @@ public class DisplayManager {
 
     }
 
-    public static void updateDisplay() {
+    public static void updateDisplay() throws FileNotFoundException {
         GL.createCapabilities();
         glViewport(0, 0, WIDTH, HEIGHT);
         glfwSetFramebufferSizeCallback(window, (w, width, height) -> glViewport(0, 0, width, height));
         Renderer.EnableDepthTest(true);
 
-        float[] vertices = {
-                // Front face
-                -0.5f, -0.5f,  0.5f,   // 0
-                0.5f, -0.5f,  0.5f,   // 1
-                0.5f,  0.5f,  0.5f,   // 2
-                -0.5f,  0.5f,  0.5f,   // 3
-
-                // Back face
-                0.5f, -0.5f, -0.5f,   // 4
-                -0.5f, -0.5f, -0.5f,   // 5
-                -0.5f,  0.5f, -0.5f,   // 6
-                0.5f,  0.5f, -0.5f,   // 7
-
-                // Left face
-                -0.5f, -0.5f, -0.5f,   // 8
-                -0.5f, -0.5f,  0.5f,   // 9
-                -0.5f,  0.5f,  0.5f,   // 10
-                -0.5f,  0.5f, -0.5f,   // 11
-
-                // Right face
-                0.5f, -0.5f,  0.5f,   // 12
-                0.5f, -0.5f, -0.5f,   // 13
-                0.5f,  0.5f, -0.5f,   // 14
-                0.5f,  0.5f,  0.5f,   // 15
-
-                // Top face
-                -0.5f,  0.5f,  0.5f,   // 16
-                0.5f,  0.5f,  0.5f,   // 17
-                0.5f,  0.5f, -0.5f,   // 18
-                -0.5f,  0.5f, -0.5f,   // 19
-
-                // Bottom face
-                -0.5f, -0.5f, -0.5f,   // 20
-                0.5f, -0.5f, -0.5f,   // 21
-                0.5f, -0.5f,  0.5f,   // 22
-                -0.5f, -0.5f,  0.5f    // 23
-        };
-
-        float[] texCoords = {
-                // Front
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-                0.0f, 1.0f,
-
-                // Back
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-                0.0f, 1.0f,
-
-                // Left
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-                0.0f, 1.0f,
-
-                // Right
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-                0.0f, 1.0f,
-
-                // Top
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-                0.0f, 1.0f,
-
-                // Bottom
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-                0.0f, 1.0f
-        };
-
-        int[] indices = {
-                // Front face
-                0, 1, 2,
-                2, 3, 0,
-
-                // Back face
-                4, 5, 6,
-                6, 7, 4,
-
-                // Left face
-                8, 9, 10,
-                10, 11, 8,
-
-                // Right face
-                12, 13, 14,
-                14, 15, 12,
-
-                // Top face
-                16, 17, 18,
-                18, 19, 16,
-
-                // Bottom face
-                20, 21, 22,
-                22, 23, 20
-        };
-
         StaticShader staticShader = new StaticShader();
-        RawModel rawModel = DataLoader.loadRawModel(vertices, texCoords, indices);
+        RawModel rawModel = ObjModel.loadObjModel("backpack");
         ModelTexture texture = new ModelTexture(DataLoader.loadTexture("highqualitybrick.jpg"));
         TexturedModel model = new TexturedModel(rawModel, texture);
         Renderer renderer = new Renderer(staticShader);

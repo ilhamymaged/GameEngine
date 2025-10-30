@@ -23,12 +23,13 @@ public class DataLoader {
     private static final List<Integer> VERTEX_BUFFER_LIST = new ArrayList<>();
     private static final List<Integer> textures = new ArrayList<>();
 
-    public static RawModel loadRawModel(float[] positions, float[] texCoords, int[] indices) {
+    public static RawModel loadRawModel(float[] positions, float[] normals, float[] texCoords, int[] indices) {
         int VAO = createVAO();
         VERTEX_ARRAY_LIST.add(VAO);
         bindIndicesBuffer(indices);
         storeDataInAttributeList(0, 3, positions);
-        storeDataInAttributeList(1, 2, texCoords);
+        storeDataInAttributeList(1, 3, normals);
+        storeDataInAttributeList(2, 2, texCoords);
         unBindVAO();
         return new RawModel(VAO, indices.length);
     }
