@@ -1,40 +1,45 @@
 package RenderEngine;
 
+import CoreEngine.Camera;
 import CoreEngine.DataLoader;
-import RenderEngine.Models.Entity;
-import RenderEngine.Models.ModelTexture;
-import RenderEngine.Models.RawModel;
-import RenderEngine.Models.TexturedModel;
-import Shaders.StaticShader;
+import RenderEngine.Models.*;
+import Shaders.Shader;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 
 public class Renderer {
 
-    private static final float FOV = (float)Math.toRadians(45.0f);
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 100.0f;
 
-    public Renderer(StaticShader shader) {
-        Matrix4f projectionMatrix = RawModel.createProjectionMatrix(FOV, NEAR_PLANE, FAR_PLANE);
+    public Renderer(Shader shader) {
+        Matrix4f projectionMatrix = RawModel.createProjectionMatrix((float) Math.toRadians(Camera.getFOV()),  NEAR_PLANE, FAR_PLANE);
         shader.use();
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop();
     }
 
-    public void render(Entity entity, StaticShader staticShader) {
-        TexturedModel model = entity.getTexturedModel();
-        DataLoader.bindVAO(model.getRawModel().getVAO());
+    public void renderEntity(Model.ModelAsset model, Vector3f entityPos, Vector3f entityRotation, Vector3f entityScale, Shader shader) {
+        for (Model.MeshAsset mesh : model.meshes()) {
+            Entity entity = new Entity(new TexturedModel(mesh.rawModel(), mesh.texture()), entityPos, entityRotation, entityScale);
+            render(entity, shader);
+        }
+    }
+
+    public void render(Entity entity, Shader shader) {
+        TexturedModel model = entity.texturedModel();
+        DataLoader.bindVAO(model.rawModel().getVAO());
 
         ModelTexture.activeTextureUnit(GL_TEXTURE0);
-        model.getModelTexture().bind();
+        model.modelTexture().bind();
 
-        Matrix4f transformationMatrix = RawModel.createTransformationMatrix(entity.getPos(), entity.getRot(), entity.getScale());
-        staticShader.loadTransformationMatrix(transformationMatrix);
+        Matrix4f transformationMatrix = RawModel.createTransformationMatrix(entity.pos(), entity.rot(), entity.scale());
+        shader.loadTransformationMatrix(transformationMatrix);
 
-        glDrawElements(GL_TRIANGLES, model.getRawModel().getIndicesCount(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, model.rawModel().getIndicesCount(), GL_UNSIGNED_INT, 0);
         DataLoader.unBindVAO();
     }
 

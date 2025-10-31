@@ -35,34 +35,6 @@ public class DataLoader {
         return new RawModel(VAO, indices.length);
     }
 
-    public static int loadTexture(String name) {
-        int id = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, id);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        IntBuffer width = BufferUtils.createIntBuffer(1);
-        IntBuffer height = BufferUtils.createIntBuffer(1);
-        IntBuffer channels = BufferUtils.createIntBuffer(1);
-        ByteBuffer image = STBImage.stbi_load( "src/Assets/Textures/"+ name, width, height, channels, 4);
-
-        if(image != null) {
-            int format = channels.get(0) == 3 ? GL_RGB : GL_RGBA;
-            glTexImage2D(GL11.GL_TEXTURE_2D, 0, format, width.get(0), height.get(0), 0, format, GL_UNSIGNED_BYTE, image);
-            System.out.print("IMAGE LOADED SUCCESSFULLY: " + name);
-        }
-        else {
-            assert false : "COULDN'T LOAD THIS IMAGE: " + name;
-        }
-
-        STBImage.stbi_image_free(image);
-        textures.add(id);
-        return id;
-    }
-
     public static int loadTextureFromAbsolutePath(String absolutePath) {
         STBImage.stbi_set_flip_vertically_on_load(true);
 

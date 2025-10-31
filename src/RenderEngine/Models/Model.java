@@ -15,10 +15,8 @@ import static org.lwjgl.assimp.Assimp.*;
 
 public final class Model {
 
-    /** Vertex/index bundle + texture that goes with it. */
     public record MeshAsset(RawModel rawModel, ModelTexture texture) {}
 
-    /** One imported model may contain several sub-meshes/materials. */
     public record ModelAsset(List<MeshAsset> meshes) {}
 
     private static final int ASSIMP_FLAGS =

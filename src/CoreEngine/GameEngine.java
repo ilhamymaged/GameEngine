@@ -10,7 +10,7 @@ public class GameEngine {
         DisplayManager.createDisplay();
     }
 
-    public void run() throws FileNotFoundException {
+    public void run() {
         DisplayManager.updateDisplay();
     }
 

@@ -17,16 +17,8 @@ public class RawModel {
         return VAO;
     }
 
-    public void setVAO(int VAO) {
-        this.VAO = VAO;
-    }
-
     public int getIndicesCount() {
         return indicesCount;
-    }
-
-    public void setIndicesCount(int indicesCount) {
-        this.indicesCount = indicesCount;
     }
 
     public static Matrix4f createTransformationMatrix(Vector3f pos , Vector3f rotation, Vector3f scale) {

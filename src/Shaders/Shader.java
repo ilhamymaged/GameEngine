@@ -29,6 +29,9 @@ public abstract class Shader {
     }
 
     protected abstract void getAllUniformLocations();
+    public abstract void loadTransformationMatrix(Matrix4f transformationMatrix);
+    public abstract void loadProjectionMatrix(Matrix4f projectionMatrix);
+    protected abstract void loadViewMatrix(Matrix4f viewMatrix);
 
     protected int getUniformLocation(String locName) {
         int loc = glGetUniformLocation(programId, locName);

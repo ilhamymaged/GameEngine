@@ -8,6 +8,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
 
+    private static float FOV;
     private static final float SPEED = 2.5f;
 
     private static Vector3f position;
@@ -19,34 +20,39 @@ public class Camera {
     private static float lastX;
     private static float lastY;
 
-    public Camera(Vector3f position, Vector3f front, Vector3f up, float pitch, float yaw) {
+    public Camera(Vector3f position, Vector3f front, Vector3f up, float pitch, float yaw, float FOV) {
         Camera.position = position;
         Camera.front = front;
         Camera.up = up;
         Camera.pitch = pitch;
         Camera.yaw = yaw;
         firstMouse = true;
+        Camera.FOV = FOV;
         lastX = (float) DisplayManager.getWidth() / 2;
         lastY = (float) DisplayManager.getHeight() / 2;
     }
 
 
-    public Vector3f getFront() {
-        return front;
-    }
-
     public static void setFront(Vector3f front) {
         Camera.front = front;
     }
 
-    public Vector3f getUp() {
-        return up;
+    public static float getFOV() {
+        return FOV;
     }
 
     public void setUp(Vector3f up) {
         Camera.up = up;
     }
 
+
+    public static void mouse_scrollBack(long window, double xoffset, double yoffset) {
+        FOV = FOV - (float)yoffset * 5.0f;
+        if (FOV < 1.0f)
+            FOV = 1.0f;
+        if (FOV > 45.0f)
+            FOV = 45.0f;
+    }
 
     public static void mouse_callback(long window, double xpos, double ypos) {
         if (firstMouse)
@@ -65,9 +71,6 @@ public class Camera {
         final float sensitivity = 0.1f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
-
-//        float yawTemp = getYaw();
-//        float pitchTemp = getPitch();
 
         yaw += xoffset;
         pitch += yoffset;
@@ -118,21 +121,12 @@ public class Camera {
         return position;
     }
 
-    public void setPosition(Vector3f position) {
-        Camera.position = position;
-    }
 
-    public static float getPitch() {
-        return pitch;
-    }
 
     public static void setPitch(float pitch) {
         Camera.pitch = pitch;
     }
 
-    public static float getYaw() {
-        return yaw;
-    }
 
     public static void setYaw(float yaw) {
         Camera.yaw = yaw;

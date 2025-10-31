@@ -12,7 +12,6 @@ uniform vec3 lightPos;
 uniform vec3 lightColor;
 
 void main() {
-
     vec3 normals = normalize(Normals);
     vec3 toLight = normalize(lightPos - FragPos);
 
@@ -30,6 +29,5 @@ void main() {
     vec3 specular = spec * lightColor;
 
     vec4 result = vec4(ambient + diffuse + specular, 1.0) * texture(tex, TexCoords);
-    //vec4 result = texture(tex, TexCoords);
     FragColor = result;
 }

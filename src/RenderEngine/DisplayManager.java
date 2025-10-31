@@ -4,7 +4,9 @@ import CoreEngine.Camera;
 import CoreEngine.DataLoader;
 import RenderEngine.Lighting.Light;
 import RenderEngine.Models.*;
+import Shaders.LightShader;
 import Shaders.StaticShader;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -80,7 +82,6 @@ public class DisplayManager {
         glfwShowWindow(window);
 
     }
-
     public static void updateDisplay() {
         GL.createCapabilities();
         glViewport(0, 0, WIDTH, HEIGHT);
@@ -90,19 +91,31 @@ public class DisplayManager {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetCursorPos(window, WIDTH / 2.0, HEIGHT / 2.0);
         glfwSetCursorPosCallback(window, Camera::mouse_callback);
+        glfwSetScrollCallback(window, Camera::mouse_scrollBack);
 
         StaticShader staticShader = new StaticShader();
-        Model.ModelAsset backpack = Model.loadModel("backPack/backPack.obj");
+        Model.ModelAsset cubeTerrain = Model.loadModel("cubeTerrainModel/cubeTerrainModel.obj");
+        Model.ModelAsset cube = Model.loadModel("backPack/backpack.obj");
+        Vector3f cameraPos = new Vector3f(0.0f);
+        float pitch = 0.0f;
+        float yaw = -90.0f;
+        Camera camera = new Camera(cameraPos, new Vector3f(0.0f, 0.0f, -1.0f), new Vector3f(0.0f, 1.0f, 0.0f), pitch, yaw, 45.0f);
         Renderer renderer = new Renderer(staticShader);
 
-        Vector3f entityPos = new Vector3f(0.0f, 0.0f, -5.0f);
-        Vector3f entityRotation = new Vector3f(0.0f, 0.0f, 0.0f);
-        Vector3f entityScale = new Vector3f(1.0f, 1.0f, 1.0f);
+        LightShader lightShader = new LightShader();
+        Model.ModelAsset lightModel = Model.loadModel("cube/cube.obj");
+        Renderer lightRenderer = new Renderer(lightShader);
 
-        Vector3f cameraPos = new Vector3f(0.0f);
-        float pitch = -90.0f;
-        float yaw = 0.0f;
-        Camera camera = new Camera(cameraPos, new Vector3f(0.0f, 0.0f, -1.0f), new Vector3f(0.0f, 1.0f, 0.0f), pitch, yaw);
+        Vector3f lightRotation = new Vector3f(0.0f, 0.0f, 0.0f);
+        Vector3f lightScale = new Vector3f(0.2f, 0.2f, 0.2f);
+
+        Vector3f cubeTerrainPos = new Vector3f(0.0f, -1.0f, 0.0f);
+        Vector3f cubeTerrainRotation = new Vector3f(0.0f, 0.0f, 0.0f);
+        Vector3f cubeTerrainScale = new Vector3f(1.0f, 1.0f, 1.0f);
+
+        Vector3f cubePos = new Vector3f(1.0f, 0.0f, -3.0f);
+        Vector3f cubeRotation = new Vector3f(0.0f, 0.0f, 0.0f);
+        Vector3f cubeScale = new Vector3f(1.0f, 1.0f, 1.0f);
 
         Vector3f lightPos = new Vector3f(1.0f, 0.0f, -5.0f);
         Vector3f lightColor = new Vector3f(1.0f);
@@ -117,23 +130,27 @@ public class DisplayManager {
             float deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
-//            entityRotation.add(new Vector3f((float) Math.sin((float) glfwGetTime())).mul(deltaTime));
-
+            cubeRotation.add(new Vector3f((float) Math.sin((float) glfwGetTime())).mul(deltaTime));
             camera.move(window, deltaTime);
 
+            Matrix4f viewMatrix = camera.createViewMatrix();
+
             staticShader.use();
-            staticShader.loadViewMatrix(camera.createViewMatrix());
+            staticShader.loadViewMatrix(viewMatrix);
             staticShader.loadLight(light, camera);
-            for (Model.MeshAsset mesh : backpack.meshes()) {
-                Entity entity = new Entity(
-                        new TexturedModel(mesh.rawModel(), mesh.texture()),
-                        entityPos,
-                        entityRotation,
-                        entityScale
-                );
-                renderer.render(entity, staticShader);
-            }
+
+            renderer.renderEntity(cubeTerrain, cubeTerrainPos, cubeTerrainRotation, cubeTerrainScale, staticShader);
+            renderer.renderEntity(cube, cubePos, cubeRotation, cubeScale, staticShader);
+
             staticShader.stop();
+
+            lightShader.use();
+            lightShader.loadViewMatrix(viewMatrix);
+            lightShader.loadLight(light);
+
+            lightRenderer.renderEntity(lightModel, lightPos, lightRotation, lightScale, lightShader);
+
+            lightShader.stop();
 
             swapBuffers(window);
             pullEvents();
